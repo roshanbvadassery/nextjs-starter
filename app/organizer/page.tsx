@@ -8,6 +8,8 @@ import { organizerSession } from '@/lib/organizer-session';
 import { Guestlist } from '@/lib/types';
 import { Plus, Calendar, Users, MapPin, ArrowRight, ListChecks } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function OrganizerDashboard() {
   const [guestlists, setGuestlists] = useState<Guestlist[]>([]);
 

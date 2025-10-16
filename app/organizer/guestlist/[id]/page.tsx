@@ -11,6 +11,8 @@ import {
   Clock, ListChecks, Copy, Check, Share2, ToggleLeft, ToggleRight 
 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function GuestlistManagement() {
   const params = useParams();
   const router = useRouter();

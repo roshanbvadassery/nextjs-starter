@@ -8,6 +8,8 @@ import { store } from '@/lib/store';
 import { Guestlist } from '@/lib/types';
 import { Calendar, MapPin, Users, CheckCircle, ListChecks, PartyPopper, AlertCircle } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function EventRegistration() {
   const params = useParams();
   const [guestlist, setGuestlist] = useState<Guestlist | null>(null);

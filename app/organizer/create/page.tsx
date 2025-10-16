@@ -8,6 +8,8 @@ import { store } from '@/lib/store';
 import { organizerSession } from '@/lib/organizer-session';
 import { ArrowLeft, Sparkles, ListChecks } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function CreateGuestlist() {
   const router = useRouter();
   const [formData, setFormData] = useState({
