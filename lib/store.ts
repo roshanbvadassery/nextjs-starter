@@ -2,26 +2,31 @@
 
 import { supabase } from './supabase';
 import { Guestlist, Guest } from './types';
+import { Database } from './database.types';
 
 export const store = {
   async getGuestlists(): Promise<Guestlist[]> {
-    const { data: guestlistsData, error: guestlistsError } = await supabase
-      .from('guestlists')
+    const { data: guestlistsData, error: guestlistsError } = await (supabase
+      .from('guestlists') as any)
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false }) as { data: Database['public']['Tables']['guestlists']['Row'][] | null; error: any };
 
     if (guestlistsError) {
       console.error('Error fetching guestlists:', guestlistsError);
       return [];
     }
 
+    if (!guestlistsData) {
+      return [];
+    }
+
     const guestlists: Guestlist[] = await Promise.all(
-      (guestlistsData || []).map(async (list) => {
-        const { data: guestsData } = await supabase
-          .from('guests')
+      guestlistsData.map(async (list: Database['public']['Tables']['guestlists']['Row']) => {
+        const { data: guestsData } = await (supabase
+          .from('guests') as any)
           .select('*')
           .eq('guestlist_id', list.id)
-          .order('registered_at', { ascending: false });
+          .order('registered_at', { ascending: false }) as { data: Database['public']['Tables']['guests']['Row'][] | null; error: any };
 
         return {
           id: list.id,
@@ -34,7 +39,7 @@ export const store = {
           createdBy: list.created_by,
           createdAt: list.created_at,
           isActive: list.is_active,
-          guests: (guestsData || []).map((guest) => ({
+          guests: (guestsData || []).map((guest: Database['public']['Tables']['guests']['Row']) => ({
             id: guest.id,
             name: guest.name,
             email: guest.email,
@@ -53,22 +58,24 @@ export const store = {
   async addGuestlist(
     guestlist: Omit<Guestlist, 'id' | 'createdAt' | 'guests'>
   ): Promise<Guestlist | null> {
-    const { data, error } = await supabase
-      .from('guestlists')
-      .insert({
-        name: guestlist.name,
-        event_name: guestlist.eventName,
-        event_date: guestlist.eventDate,
-        venue: guestlist.venue,
-        description: guestlist.description || null,
-        max_guests: guestlist.maxGuests || null,
-        created_by: guestlist.createdBy,
-        is_active: guestlist.isActive,
-      })
-      .select()
-      .single();
+    const insertData: Database['public']['Tables']['guestlists']['Insert'] = {
+      name: guestlist.name,
+      event_name: guestlist.eventName,
+      event_date: guestlist.eventDate,
+      venue: guestlist.venue,
+      description: guestlist.description || null,
+      max_guests: guestlist.maxGuests || null,
+      created_by: guestlist.createdBy,
+      is_active: guestlist.isActive,
+    };
 
-    if (error) {
+    const { data, error } = await (supabase
+      .from('guestlists') as any)
+      .insert(insertData)
+      .select()
+      .single() as { data: Database['public']['Tables']['guestlists']['Row'] | null; error: any };
+
+    if (error || !data) {
       console.error('Error creating guestlist:', error);
       return null;
     }
@@ -89,22 +96,22 @@ export const store = {
   },
 
   async getGuestlistById(id: string): Promise<Guestlist | null> {
-    const { data: guestlistData, error: guestlistError } = await supabase
-      .from('guestlists')
+    const { data: guestlistData, error: guestlistError } = await (supabase
+      .from('guestlists') as any)
       .select('*')
       .eq('id', id)
-      .single();
+      .single() as { data: Database['public']['Tables']['guestlists']['Row'] | null; error: any };
 
     if (guestlistError || !guestlistData) {
       console.error('Error fetching guestlist:', guestlistError);
       return null;
     }
 
-    const { data: guestsData } = await supabase
-      .from('guests')
+    const { data: guestsData } = await (supabase
+      .from('guests') as any)
       .select('*')
       .eq('guestlist_id', id)
-      .order('registered_at', { ascending: false });
+      .order('registered_at', { ascending: false }) as { data: Database['public']['Tables']['guests']['Row'][] | null; error: any };
 
     return {
       id: guestlistData.id,
@@ -117,7 +124,7 @@ export const store = {
       createdBy: guestlistData.created_by,
       createdAt: guestlistData.created_at,
       isActive: guestlistData.is_active,
-      guests: (guestsData || []).map((guest) => ({
+      guests: (guestsData || []).map((guest: Database['public']['Tables']['guests']['Row']) => ({
         id: guest.id,
         name: guest.name,
         email: guest.email,
@@ -140,8 +147,8 @@ export const store = {
     if (updates.maxGuests !== undefined) updateData.max_guests = updates.maxGuests;
     if (updates.isActive !== undefined) updateData.is_active = updates.isActive;
 
-    const { error } = await supabase
-      .from('guestlists')
+    const { error } = await (supabase
+      .from('guestlists') as any)
       .update(updateData)
       .eq('id', id);
 
@@ -154,20 +161,22 @@ export const store = {
     guestlistId: string,
     guest: Omit<Guest, 'id' | 'registeredAt'>
   ): Promise<Guest | null> {
-    const { data, error } = await supabase
-      .from('guests')
-      .insert({
-        guestlist_id: guestlistId,
-        name: guest.name,
-        email: guest.email,
-        phone: guest.phone || null,
-        plus_ones: guest.plusOnes,
-        status: guest.status,
-      })
-      .select()
-      .single();
+    const insertData: Database['public']['Tables']['guests']['Insert'] = {
+      guestlist_id: guestlistId,
+      name: guest.name,
+      email: guest.email,
+      phone: guest.phone || null,
+      plus_ones: guest.plusOnes,
+      status: guest.status,
+    };
 
-    if (error) {
+    const { data, error } = await (supabase
+      .from('guests') as any)
+      .insert(insertData)
+      .select()
+      .single() as { data: Database['public']['Tables']['guests']['Row'] | null; error: any };
+
+    if (error || !data) {
       console.error('Error adding guest:', error);
       return null;
     }
@@ -196,8 +205,8 @@ export const store = {
     if (updates.plusOnes !== undefined) updateData.plus_ones = updates.plusOnes;
     if (updates.status !== undefined) updateData.status = updates.status;
 
-    const { error } = await supabase
-      .from('guests')
+    const { error } = await (supabase
+      .from('guests') as any)
       .update(updateData)
       .eq('id', guestId)
       .eq('guestlist_id', guestlistId);
@@ -208,8 +217,8 @@ export const store = {
   },
 
   async deleteGuest(guestlistId: string, guestId: string): Promise<void> {
-    const { error } = await supabase
-      .from('guests')
+    const { error } = await (supabase
+      .from('guests') as any)
       .delete()
       .eq('id', guestId)
       .eq('guestlist_id', guestlistId);
