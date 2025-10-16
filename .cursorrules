@@ -1,1 +1,2 @@
 Use Bun as the first choice always instead of npm unless asked otherwise.
+Please create, read and update the .env or .env.local
