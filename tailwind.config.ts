@@ -60,6 +60,15 @@ const config: Config = {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        neopop: {
+          purple: 'hsl(var(--neopop-purple))',
+          yellow: 'hsl(var(--neopop-yellow))',
+          green: 'hsl(var(--neopop-green))',
+          pink: 'hsl(var(--neopop-pink))',
+          red: 'hsl(var(--neopop-red))',
+          dark: 'hsl(var(--neopop-dark))',
+          darker: 'hsl(var(--neopop-darker))',
+        },
       },
       keyframes: {
         'accordion-down': {
